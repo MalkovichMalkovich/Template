@@ -22,7 +22,6 @@ Above is a basic example of initializing Template.js with a small template conta
 ##Blocks##
 Templates are made of blocks. Blocks are slices of HTML and Template.js tags and tokens. Output is made by combining blocks or by using each block induvidualy via the `Template.render` function. 
 Its best to regard blocks as functions (which they are by the way), they can accept view structures and can be linked inside other blocks.
-Blocks cannot be nested inside another blocks, but they can be linked.
 
 Let's take a simple template made from 3 blocks:
 ```html
@@ -34,7 +33,7 @@ Let's take a simple template made from 3 blocks:
 [/body]
 
 [header]
-  <div>Hello, #{$name || 'username'}</div>
+  <div>Hello, #{$name}</div>
 [/header]
 
 [footer]
@@ -42,8 +41,21 @@ Let's take a simple template made from 3 blocks:
 [/footer]
 ```
 
-Now, let's initialize Template.js with this template (we'll assign it to `templateText` variable)
-
+Let's initialize Template.js with this template (we'll assign it to `templateText` variable):
 ```javascript
 Template.initialize(templateText);
+```
+
+Now, that we have our template compiled, let's render it with the data from the `view` structure:
+```javascript
+var view = 
+{
+  title: 'My first real template'
+  header:
+  {
+    name: 'Archie'
+  }
+};
+
+var output = Template.render('templateText', view);
 ```
