@@ -78,15 +78,25 @@ The resulting value of the `output` variable will be:
 ```
 **Please note:** Template.js is just a templating engine and will not escape, validate or in any way transform the data you provide it with. It is up to you to make sure the data is properly handeled before providing it to the `Template.render()` function.
 
+
 ##Tokens##
 Tokens are basic template constructs. Tokens contain [variables](#variables) and can include basic logical and mathematical operations or even Javascript functions.
 Here are some of the possible operations you can do with tokens:
-* `#{$variable}` The most basic token construct, outputs the value of `variable` to the template or an empty string if not set, false or null.
-* `#{$variable || 'default value'}` Same as the previous, but will return 'default value' string if `variable` not set, empty false or null.
+* `#{$variable}` and `#{$variable.childVariable}` The most basic token construct, outputs the value of `variable` or `variable.childVariable` to the template or an empty string if not set, false or null.
+* `#{$variable || 'default value'}` Same as the previous, but will return '*default value*' string if `variable` not set, empty false or null.
 * `#{Math.abs($variable1 + $variable2)}` Will return the absolute sum of `variable1` and `variable2`.
-* `#{$light == 'red' ? 'stop' : 'go'}` Will return 'stop' if `light` equals 'red', otherwise will return 'go'.
+* `#{$light == 'red' ? 'stop' : 'go'}` Will return '*stop*' if `light` equals '*red*', otherwise will return '*go*'.
 * `#{$text.replace(/\b(https?:\/\/.+?)\b/gim, '<a href="$1">$1</a>')}` Will replace all urls in `text` with anchor tags.
+
 Other combinations are also possible, just use your imagination.
 
 
-that take their values from the view structure provided to the `Template.render()` function, with the name of the token.
+##Variables##
+Variables represent values of the view structure where the name of the variable represents the corresponding key name in the view structure. Variables can be set, modified, removed and searched for. Variables are discarded once `Template.render()` completed its job. To preserve variables and their values in the template, Template.js has a "global" variables structure `Template.vars` that is used to keep values in the template.
+Possible variable types:
+* `$variable`, `$variable.childVariable` or `$variable['childVariable']` Local variable, will take the value of the corresponding key in the [scope](#scope) of the provided view structure
+* `@variable` Inherited variable, will recursively search for the corresponding key up the view substructure tree and finaly in the `Template.vars` structure. Read more about [variable scoping](#scope)
+
+
+
+with the name of the token.
