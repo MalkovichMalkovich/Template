@@ -92,11 +92,43 @@ Other combinations are also possible, just use your imagination.
 
 
 ##Variables##
-Variables represent values of the view structure where the name of the variable represents the corresponding key name in the view structure. Variables can be set, modified, removed and searched for. Variables are discarded once `Template.render()` completed its job. To preserve variables and their values in the template, Template.js has a "global" variables structure `Template.vars` that is used to keep values in the template.
+Variables represent values of the view structure where the name of the variable represents the corresponding key name in the view structure. Variables can be set, modified, removed and searched for. Variables are discarded once `Template.render()` completed its job. To preserve variables and their values in the template, Template.js has a "global" variables structure `Template.vars` that is used to keep values over multiple render operations.
 Possible variable types:
 * `$variable`, `$variable.childVariable` or `$variable['childVariable']` Local variable, will take the value of the corresponding key in the [scope](#scope) of the provided view structure
-* `@variable` Inherited variable, will recursively search for the corresponding key up the view substructure tree and finaly in the `Template.vars` structure. Read more about [variable scoping](#scope)
+* `@variable` Inherited variable, will recursively search for the corresponding key up the view substructure tree and finaly in the `Template.vars` structure. Read more about [variable scoping](#scope
+* `^variable`, `^variable.childVariable` or `^variable['childVariable']` Global template variable, will take the value of the corresponding key in the `Template.vars` structure. Changes made to global template variables are kept over multiple render operations.
+* `variable` Javascript variable defined in the global scope of `window` or the current [tag](#tags)
 
 
+##Tags##
+Template.js supports several tags that enable you to dynamicaly modify or add content to the rendered block. Tags allow logical operations, looping and block linking.
+###IF, ELSE IF, ELSE tags###
+```html
+<if $light == 'red'>
+	Wait angrilly
+</if>
+<else if $light == 'yellow'>
+	Start honking the guy infront of you
+</if>
+<else>
+	Drive
+</else>
+```
+IF, ELSE IF and ELSE tags can be nested
 
-with the name of the token.
+###FOR and FOR IN loops ###
+```html
+<ul>
+	<for var i=0; i<10; i++>
+		<li>I am number #{i}</li>
+	</for>		
+</ul>
+
+<ul>
+	<for var index in $people>
+		<li>My name is #{$people[index].name}</li>
+	</for>		
+</ul>
+```
+
+**Take note:** All tags are functions that perform at runtime, therefore excesive or incorrect usage may penalty rendering performance. Use them wisely. 
