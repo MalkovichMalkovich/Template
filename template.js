@@ -1,4 +1,3 @@
-
 var Template =
 {
 	debug: false,
@@ -6,52 +5,31 @@ var Template =
 	vars: {},
 	pub: {},
 	blocksPattern: /\[([A-Z0-9_\.]+?)\](.*?)\[\/\1\]/gim,
-
+	
 	preProcessors:
 	{
-		basic: function(text)
+		cleaning: [/<\!--[\s\S]*?-->|\r|\t|\n|\s{2,}/gm, ''],
+		tokens: [/#\{(.+?)\}/gi, "<!--|--><!--$1--><!--|-->"],
+		ifTag: [/<if\s+(.+?)>/gi, "<!--|--><!--function(){if($1) {return [''--><!--|-->"],
+		elseIfTag: [/<\/if>\s*?<else if\s+(.+?)>/gi, "<!--|--><!--''].join('')} else if ($1) {return [''--><!--|-->"],
+		elseTag: [/<\/if>\s*?<else>/gi, "<!--|--><!--''].join('')} else {return [''--><!--|-->"],
+		ifElseCloseTag: [/<\/(if|else)>/gi, "<!--|--><!--''].join('')}}.call(this)--><!--|-->"],
+		foreachTag: [/<foreach\s+(.+?)(?:\s+in\s+(.+?)(?:\s+as\s+(.+?))?)?>/gi, function(match, p1, p2, p3)
 		{
-			text = text.replace(/<\!--[\s\S]*?-->|\r|\t|\n|\s{2,}/gm, ''); // Remove all new lines, tabs, double spaces and html comments
-			text = text.replace(/#\{(.+?)\}/gi, "<!--|--><!--$1--><!--|-->"); // Tokenize
-
-			return text;    
-		},
-
-		logicBlocks: function(text)
+			p3 = p3 || 't._item'; // iterrated item variable name
+			p2 = p2 || p1; // iterated structure variable name
+			p1 = p1 || 't._index'; // iterrator index name
+			
+			return "<!--|--><!--function(struct){var t=struct, _t="+p2+", _r=[]; if (_t && _t.length){for(var i=0, l=_t.length; i<l; i++){t=_t[i]; t._parent=struct; "+p1+" = i; "+p3+" = t; _r.push([''--><!--|-->";
+		}],
+		foreachCloseTag: [/<\/foreach>/gi, "<!--|--><!--''].join(''));} return _r.join('')}}.call(this, t)--><!--|-->"],
+		forTag: [/<for\s+(.+?)>/gi, "<!--|--><!--function(){var _r=[]; for($1){_r.push([''--><!--|-->"],
+		forCloseTag: [/<\/for>/gi, "<!--|--><!--''].join(''));} return _r.join('')}.call(this)--><!--|-->"],
+		scriptTag: [/<script(?:\s.+?)?>(.*?)<\/script>/gim, "<!--|--><!--function(){$1}.call(this)--><!--|-->"],
+		linkedBlockTag: [/<@(.+?)(?:\s+(.+?))?\s?\/>/gi, function(match, p1, p2)
 		{
-			text = text.replace(/<if\s+(.+?)>/gi, "<!--|--><!--function(){if($1) {return [''--><!--|-->"); // if
-			text = text.replace(/<\/if>\s*?<else if\s+(.+?)>/gi, "<!--|--><!--''].join('')} else if ($1) {return [''--><!--|-->"); // else if
-			text = text.replace(/<\/if>\s*?<else>/gi, "<!--|--><!--''].join('')} else {return [''--><!--|-->"); // else
-			text = text.replace(/<\/(if|else)>/gi, "<!--|--><!--''].join('')}}.call(this)--><!--|-->");
-
-			return text;    
-		},
-
-		loopBlocks: function(text)
-		{
-			// foreach loop
-			text = text.replace(/<foreach\s+(.+?)>/gi, "<!--|--><!--function(p){var t=p, _r=[], _t=$1; if (_t && _t.length){for(var i=0, l=_t.length; i<l; i++){t=_t[i]; t._parent=p; t._index = i; _r.push([''--><!--|-->");
-			text = text.replace(/<\/foreach>/gi, "<!--|--><!--''].join(''));} return _r.join('')}}.call(this, t)--><!--|-->");
-
-			// for loop
-			text = text.replace(/<for\s+(.+?)>/gi, "<!--|--><!--function(){var _r=[]; for($1){_r.push([''--><!--|-->");
-			text = text.replace(/<\/for>/gi, "<!--|--><!--''].join(''));} return _r.join('')}.call(this)--><!--|-->");
-
-			return text;    
-		},
-
-		scriptBlocks: function(text)
-		{
-			return text.replace(/<script(?:\s.+?)?>(.*?)<\/script>/gim, "<!--|--><!--function(){$1}.call(this)--><!--|-->"); 
-		},
-
-		linkedBlocks: function(text)
-		{
-			return text.replace(/<@(.+?)(?:\s+(.+?))?\s?\/>/gi, function(match, p1, p2)
-			{
-				return (p2) ? "<!--|--><!--this._rd('"+p1+"', "+p2+")--><!--|-->" : "<!--|--><!--this._rd('"+p1+"', t."+p1+"||t)--><!--|-->";
-			});    
-		},    
+			return (p2) ? "<!--|--><!--this._rd('"+p1+"', "+p2+")--><!--|-->" : "<!--|--><!--this._rd('"+p1+"', t."+p1+"||t)--><!--|-->";
+		}]	
 	},
 
 	initialize: function(rawData) 
@@ -70,45 +48,18 @@ var Template =
 		}   
 	},
 
-	add: function(rawData)
-	{
-		if (typeof rawData === 'string')
-		{
-			this.compile(this.parse(rawData));    
-		}
-		else
-		{
-			this.compile(rawData);    
-		}
-	},
-
-	findVar: function(hayStack, needle)
-	{
-		if (hayStack[needle])
-		{
-			return hayStack[needle];
-		}
-		else if (hayStack._parent)
-		{
-			return this._fv(hayStack._parent, needle);	
-		}
-		else
-		{
-			return '';
-		}
-	},
-
 	parse: function(rawData)
 	{
 		var parsedBlocks = {};
 		var foundBlock = null;
-		var rawBlock, parsedBlock, tokenName;
+		var preProcessor, rawBlock, parsedBlock, tokenName;
 
-		for (var processor in this.preProcessors)
+		for (var name in this.preProcessors)
 		{
-			if (this.preProcessors.hasOwnProperty(processor))
+			if (this.preProcessors.hasOwnProperty(name))
 			{
-				rawData = this.preProcessors[processor](rawData);     
+				preProcessor = this.preProcessors[name];  
+				rawData = rawData.replace(preProcessor[0], preProcessor[1]);     
 			}
 		}
 
@@ -171,5 +122,33 @@ var Template =
 		{
 			return this.blocks[name].call(this.pub, data);
 		}    
-	}
+	},
+	
+	add: function(rawData)
+	{
+		if (typeof rawData === 'string')
+		{
+			this.compile(this.parse(rawData));    
+		}
+		else
+		{
+			this.compile(rawData);    
+		}
+	},
+
+	findVar: function(hayStack, needle)
+	{
+		if (hayStack[needle])
+		{
+			return hayStack[needle];
+		}
+		else if (hayStack._parent)
+		{
+			return this._fv(hayStack._parent, needle);	
+		}
+		else
+		{
+			return '';
+		}
+	},
 };
