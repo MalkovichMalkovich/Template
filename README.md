@@ -114,7 +114,7 @@ Template.js supports several tags that enable you to dynamicaly modify or add co
 	Drive
 </else>
 ```
-IF, ELSE IF and ELSE tags can be nested
+`id`, `else if` and `else` tags can be nested
 
 ###FOR and FOR IN loops ###
 ```html
@@ -128,6 +128,16 @@ IF, ELSE IF and ELSE tags can be nested
 	<for var index in $people>
 		<li>My name is #{$people[index].name}</li>
 	</for>		
+</ul>
+```
+
+###FOREACH loop ###
+The `foreach` loop allows you to quickly iterate over the desired view sub-structure. 
+```html
+<ul>
+	<foreach $items>
+		<li>I am number #{i}</li>
+	</foreach>		
 </ul>
 ```
 
