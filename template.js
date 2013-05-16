@@ -1,6 +1,5 @@
 var Template =
 {
-	debug: false,
 	blocks: {},
 	vars: {},
 	pub: {},
