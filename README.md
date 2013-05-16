@@ -94,10 +94,10 @@ Other combinations are also possible, just use your imagination.
 ##Variables##
 Variables represent values of the view structure where the name of the variable represents the corresponding key name in the view structure. Variables can be set, modified, removed and searched for. Variables are discarded once `Template.render()` completed its job. To preserve variables and their values in the template, Template.js has a "global" variables structure `Template.vars` that is used to keep values over multiple render operations.
 Possible variable types:
-* `$variable`, `$variable.childVariable` or `$variable['childVariable']` Local variable, will take the value of the corresponding key in the [scope](#scope) of the provided view structure
-* `@variable` Inherited variable, will recursively search for the corresponding key up the view substructure tree and finaly in the `Template.vars` structure. Read more about [variable scoping](#scope)
-* `^variable`, `^variable.childVariable` or `^variable['childVariable']` Global template variable, will take the value of the corresponding key in the `Template.vars` structure. Changes made to global template variables are kept over multiple render operations.
-* `variable` Javascript variable defined in the global scope of `window` or the current [tag](#tags)
+* `$variable`, `$variable.childVariable` or `$variable['childVariable']` **Local variable**, will take the value of the corresponding key in the [scope](#scope) of the provided view structure
+* `@variable` **Inherited variable**, will recursively search for the corresponding key up the view substructure tree and finaly in the `Template.vars` structure. Read more about [variable scoping](#scope)
+* `^variable`, `^variable.childVariable` or `^variable['childVariable']` **Global template variable**, will take the value of the corresponding key in the `Template.vars` structure. Changes made to global template variables are kept over multiple render operations.
+* `variable` a regular Javascript variable defined in the global scope of `window` or the current [tag](#tags)
 
 
 ##Tags##
@@ -134,8 +134,8 @@ Template.js supports several tags that enable you to dynamicaly modify or add co
 ```
 
 ###FOREACH loop ###
-The `foreach` loop allows you to quickly iterate over the desired view sub-structure array. The `foreach` loop tag is somewhat different than the other loop tags as it will shift the [scope](#scope) to the provided view substructure array item. 
-Let's create a simple view structure with nested sub-structure array for our `foreach` tag to iterate on:
+The `foreach` loop allows you to quickly iterate over the desired view substructure array. The `foreach` loop tag is somewhat different than the other loop tags as it will shift the [scope](#scope) to the provided view substructure array item. 
+Let's create a simple view structure with nested substructure array for our `foreach` tag to iterate on:
 ```javascript
 var view = 
 {
@@ -148,7 +148,7 @@ var view =
 }
 ```
 
-There are 3 ways to substructures.
+There are 3 ways to itterate over substructures.
 ```html
 <ul>
 	<foreach $people>
@@ -156,7 +156,7 @@ There are 3 ways to substructures.
 	</foreach>		
 </ul>
 ```
-In this example the provide a single `$people` variable to the `foreach` tag to itterate on.
+In this example we provide a single `$people` array to the `foreach` tag to itterate over.
 
 ```html
 <ul>
@@ -170,8 +170,72 @@ Here we have assigned a name to our itterator index (`$index`) so now we can use
 ```html
 <ul>
 	<foreach $index in $people as $person>
-		<li>#{$index}. My name is #{$name}, my age is #{$person['age']}</li>
+		<li>#{$index+1}. My name is #{$name}, my age is #{$person['age']}</li>
 	</foreach>		
 </ul>
 ```
-We have added an additional variable `$person` to our `foreach` tag
+We have added an additional variable `$person` to our `foreach` tag. This variable is our current array item, so we can access its keys explicitly within the tag or any nested tags or [linked blocks](#linked_block).
+
+Once again, the `foreach` loop will shift the [scope](#scope) to the current substructure array item, so in order to access values from the parent structure, we need to use [inherited variables](#variables) (`@variable`).
+
+###Linked block tag###
+As their name suggests, `linked blocks` are [template blocks](#blocks) that render inside the block we are currently rendering. 
+
+Consider the following view structure:
+```javascript
+var view = 
+{
+	name: 'Archie',
+	place: 'somewhere',
+	header:
+	{
+		place: 'world'
+	},
+	foo:
+	{
+		year: 2013
+	}
+}
+```
+Now, let's look at our template:
+```html
+[main]
+	<@header>
+	<div>My name is #{$name}</div>
+	<@footer>
+[/main]
+
+[header]
+	<h1>Hello, #{$place}!</h1>
+[/header]
+
+[footer]
+	<div>The year is: #{$year}</div>
+[/footer]
+```
+
+When rendered, linked tags will try to use a view substructure with the `linked block's` name as its key. If no such substructure exists, the `linked block` will use the parent structure, so the resulring output will be:
+```html
+<h1>Hello, world!</h1>
+<div>My name is Archie</div>
+<div>The year is:</div>
+```
+But, if we are to remove the `header` substructure from our view, the result will be:
+```html
+<h1>Hello, somewhere!</h1>
+<div>My name is Archie</div>
+<div>The year is:</div>
+```
+
+We can also explicitlly assign structure data to our `linked block`:
+```html
+<@header {place: 'here'}>
+<div>My name is #{$name}</div>
+<@header $foo>
+```
+Will result in:
+```html
+<h1>Hello, here!</h1>
+<div>My name is Archie</div>
+<div>The year is: 2013</div>
+```
