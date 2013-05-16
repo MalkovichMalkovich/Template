@@ -49,7 +49,7 @@ Let's take a simple template made from 3 blocks: `body`, `header` and `footer`
 	<div>The year is: #{$year}</div>
 [/footer]
 ```
-As we can see, the `body` block have [linked block tags](#blocks) to blocks `header` and `footer`, effectively placing their content inside the `body` block.
+As we can see, the `body` block have [linked block tags](#linked-block-tag) to blocks `header` and `footer`, effectively placing their content inside the `body` block.
 
 We'll initialize Template.js with this template (we'll assign it to `templateText` variable):
 ```javascript
@@ -174,7 +174,7 @@ Here we have assigned a name to our itterator index (`$index`) so now we can use
 	</foreach>		
 </ul>
 ```
-We have added an additional variable `$person` to our `foreach` tag. This variable is our current array item, so we can access its keys explicitly within the tag or any nested tags or [linked blocks](#linked_block).
+We have added an additional variable `$person` to our `foreach` tag. This variable is our current array item, so we can access its keys explicitly within the tag or any nested tags or [linked blocks](#linked-block-tag).
 
 Once again, the `foreach` loop will shift the [scope](#scope) to the current substructure array item, so in order to access values from the parent structure, we need to use [inherited variables](#variables) (`@variable`).
 
