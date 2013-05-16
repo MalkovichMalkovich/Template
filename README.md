@@ -95,13 +95,15 @@ Other combinations are also possible, just use your imagination.
 Variables represent values of the view structure where the name of the variable represents the corresponding key name in the view structure. Variables can be set, modified, removed and searched for. Variables are discarded once `Template.render()` completed its job. To preserve variables and their values in the template, Template.js has a "global" variables structure `Template.vars` that is used to keep values over multiple render operations.
 Possible variable types:
 * `$variable`, `$variable.childVariable` or `$variable['childVariable']` Local variable, will take the value of the corresponding key in the [scope](#scope) of the provided view structure
-* `@variable` Inherited variable, will recursively search for the corresponding key up the view substructure tree and finaly in the `Template.vars` structure. Read more about [variable scoping](#scope
+* `@variable` Inherited variable, will recursively search for the corresponding key up the view substructure tree and finaly in the `Template.vars` structure. Read more about [variable scoping](#scope)
 * `^variable`, `^variable.childVariable` or `^variable['childVariable']` Global template variable, will take the value of the corresponding key in the `Template.vars` structure. Changes made to global template variables are kept over multiple render operations.
 * `variable` Javascript variable defined in the global scope of `window` or the current [tag](#tags)
 
 
 ##Tags##
 Template.js supports several tags that enable you to dynamicaly modify or add content to the rendered block. Tags allow logical operations, looping and block linking.
+**Please note:** All tags are functions that perform at runtime, therefore excesive or incorrect usage may penalty rendering performance. Use them wisely. 
+
 ###IF, ELSE IF, ELSE tags###
 ```html
 <if $light == 'red'>
@@ -132,13 +134,44 @@ Template.js supports several tags that enable you to dynamicaly modify or add co
 ```
 
 ###FOREACH loop ###
-The `foreach` loop allows you to quickly iterate over the desired view sub-structure. 
+The `foreach` loop allows you to quickly iterate over the desired view sub-structure array. The `foreach` loop tag is somewhat different than the other loop tags as it will shift the [scope](#scope) to the provided view substructure array item. 
+Let's create a simple view structure with nested sub-structure array for our `foreach` tag to iterate on:
+```javascript
+var view = 
+{
+	people:
+	[
+		{name: 'John', age: 31},
+		{name: 'Jim', age: 42},
+		{name: 'Jake', age: 25},
+	]
+}
+```
+
+There are 3 ways to substructures.
 ```html
 <ul>
-	<foreach $items>
-		<li>I am number #{i}</li>
+	<foreach $people>
+		<li>My name is #{$name}, my age is #{$age}</li>
 	</foreach>		
 </ul>
 ```
+In this example the provide a single `$people` variable to the `foreach` tag to itterate on.
 
-**Take note:** All tags are functions that perform at runtime, therefore excesive or incorrect usage may penalty rendering performance. Use them wisely. 
+```html
+<ul>
+	<foreach $index in $people>
+		<li>#{$index}. My name is #{$name}, my age is #{$age}</li>
+	</foreach>		
+</ul>
+```
+Here we have assigned a name to our itterator index (`$index`) so now we can use it as a [local variable](#variables) in the [scope](#scope) of our current substructure array item. If the index name is not set, it will take a default name `$_index`.
+
+```html
+<ul>
+	<foreach $index in $people as $person>
+		<li>#{$index}. My name is #{$name}, my age is #{$person['age']}</li>
+	</foreach>		
+</ul>
+```
+We have added an additional variable `$person` to our `foreach` tag
