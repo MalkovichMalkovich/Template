@@ -67,7 +67,7 @@ var view =
 	}
 };
 
-var output = Template.render('templateText', view);
+var output = Template.render('body', view);
 ```
 The resulting value of the `output` variable will be:
 ```html
