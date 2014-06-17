@@ -1,0 +1,20 @@
+<html>
+<head>
+</head>
+<body>
+</body>
+</html>
+
+<script src="../template.js"></script>
+<script>
+Template.initialize('[example]Hello #{$place}, my name is #{$name}.[/example]');
+
+var view = 
+{
+    place: 'world',
+    name: 'Archie'
+}
+var output = Template.render('example', view); // Hello world, my name is Archie.
+document.body.innerHTML = output;
+</script>
+

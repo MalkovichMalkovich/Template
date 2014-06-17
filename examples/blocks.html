@@ -1,0 +1,44 @@
+<html>
+<head>
+</head>
+<body>
+</body>
+</html>
+
+<div id="template" style="display:none">
+[body]
+    <@header/>
+    <h1>#{$title}</h1>
+    <p>The is the body of the website</p>
+    <@footer {year: new Date().getYear()}/>
+[/body]
+
+[header]
+    <div>Hello, #{$name}</div>
+[/header]
+
+[footer]
+    <div>The year is: #{$year}</div>
+[/footer]
+</div>
+
+<script src="../template.js"></script>
+<script>
+var templateText = document.getElementById('template').innerHTML;
+
+Template.initialize(templateText);
+
+var view = 
+{
+    title: 'My first real template',
+    header:
+    {
+        name: 'Archie'
+    }
+};
+
+
+var output = Template.render('body', view);
+
+document.body.innerHTML = output;
+</script>

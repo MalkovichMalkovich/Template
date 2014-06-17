@@ -60,14 +60,14 @@ Now, that we have our template compiled, we'll render it with the data from the 
 ```javascript
 var view = 
 {
-	title: 'My first real template'
+	title: 'My first real template',
 	header:
 	{
 		name: 'Archie'
 	}
 };
 
-var output = Template.render('templateText', view);
+var output = Template.render('body', view);
 ```
 The resulting value of the `output` variable will be:
 ```html

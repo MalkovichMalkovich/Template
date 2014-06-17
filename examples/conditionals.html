@@ -1,0 +1,43 @@
+<html>
+<head>
+</head>
+<body>
+</body>
+</html>
+
+<script src="../template.js"></script>
+<script>
+var templateText = "[body]                    \
+  <if $light == 'red'>                        \
+    Wait angrilly                             \
+  </if>                                       \
+  <else if $light == 'yellow'>                \
+      Start honking the guy infront of you    \
+  </if>                                       \
+  <else>                                      \
+      Drive                                   \
+  </else>                                     \
+  <select id=\"light\">                       \
+  <option></option>                           \
+  <option <if $light == 'red'>SELECTED</if> id=\"red\">red</option>            \
+  <option <if $light == 'yellow'>SELECTED</if> id=\"yellow\">yellow</option>   \
+  </select>                                   \
+[/body]";
+
+function show(light) {
+	Template.initialize(templateText);
+	var view = {'light': light};
+	
+	var output = Template.render('body', view);
+	
+	document.body.innerHTML = output;
+	var lighter = document.getElementById('light');
+	lighter.addEventListener('change', function() {
+		console.log('change');
+        show(lighter.options[lighter.selectedIndex].value);
+	});
+}
+
+show();
+</script>
+

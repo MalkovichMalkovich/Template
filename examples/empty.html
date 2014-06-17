@@ -1,0 +1,15 @@
+<html>
+<head>
+</head>
+<body>
+</body>
+</html>
+
+<script src="../template.js"></script>
+<script>
+Template.initialize('[body]A template without any variables inside.[/body]');
+
+var output = Template.render('body'); 
+document.body.innerHTML = output;
+</script>
+
