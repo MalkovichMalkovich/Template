@@ -1,0 +1,26 @@
+<html>
+<head>
+</head>
+<body>
+Using two templates on page.
+<div id="one"></div>
+<div id="two"></div>
+
+</body>
+</html>
+
+<script src="../template.js"></script>
+<script>
+var template1 = "[body]Hello #{$name}[/body]";
+var template2 = "[body]Nice #{$color}[/body]";
+
+Template.initialize(template1);
+var output1 = Template.render('body', {'name' : 'Foo'});
+document.getElementById('one').innerHTML = output1;
+
+
+Template.initialize(template2);
+var output2 = Template.render('body', {'color' : 'Blue'});
+document.getElementById('two').innerHTML = output2;
+</script>
+
