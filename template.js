@@ -149,3 +149,7 @@ var Template =
 		}
 	},
 };
+// Copyright (C) 2013 Stas (Archie) Granin
+// source: https://github.com/MalkovichMalkovich/Template.js
+
+
