@@ -60,7 +60,7 @@ Now, that we have our template compiled, we'll render it with the data from the 
 ```javascript
 var view = 
 {
-	title: 'My first real template'
+	title: 'My first real template',
 	header:
 	{
 		name: 'Archie'
